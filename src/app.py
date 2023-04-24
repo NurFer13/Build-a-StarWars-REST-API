@@ -8,7 +8,8 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planet, Vehicle, Favorite
+
 #from models import Person
 
 app = Flask(__name__)
@@ -58,12 +59,26 @@ def create_user():
 
     return jsonify(new_user.serialize()),200
 
+@app.route('/user/<int:id>',methods=['DELETE'])
+def delete_user(id):
+    user=User.query.get(id).first()
+    db.session.remove(user)
+    db.session.commit()
+    return jsonify(user.serialize()),201
+
 @app.route('/people',methods=['GET'])
 def  get_people():
      all_people=People.query.all()
      all_people=list(map(lambda people:people.serialize(), all_people))
 
      return jsonify(all_people),200
+
+@app.route('/people/<int:id>', methods=['DELETE'])
+def delete_people(id):
+    character=People.query.get(id).first()
+    db.session.remove(character)
+    db.session.commit()
+    return jsonify(character.serialize()), 201
 
 @app.route('/people', methods=['POST'])
 def create_people():
@@ -73,6 +88,9 @@ def create_people():
     db.session.commit()
 
     return jsonify(people.serialize()),200
+
+
+
 
 
 @app.route('/people/<int:id>',methods=['GET']) 
@@ -87,6 +105,15 @@ def get_planet():
     all_planet=list(map(lambda planet:planet.serialize(), all_planet))  
 
     return jsonify(all_planet),200
+
+@app.route('/planet/<inte:id>',methods=['DELETE'])
+def delete_planet(id):
+    planet=planet.query.get(id).first()
+    db.session.remove(planet)
+    db.session.commit()
+
+    return jsonify(planet.serialize()),201
+
 
 @app.route('/planet',methods=['POST'])
 def create_planet():
@@ -112,6 +139,15 @@ def get_vehicle():
     return jsonify(all_vehicle),200
 
 
+@app.route('/vehicle/<int:id>',methods=['DELETE'])
+def delete_vehicle(id):
+    vehicle=vehicle.query.get(id).first()
+    db.session.remove(vehicle)
+    db.session.commit()
+
+    return jsonify(vehicle.serialize()),201
+
+
 @app.route('/vehicle',methods=['POST'])
 def create_vehicle():
     data=request.get_json()
@@ -135,6 +171,41 @@ def get_favorite():
 
     return jsonify(all_favorite),200
 
+@app.route('/favorite/people', methods=['POST'])
+def new_favorite():
+    data=request.get_json()
+    new_favorite= People(data['name'],data ['birth_date'], data['description'] ,data['eye_color'] ,data ['hair_color'])
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify(new_favorite.serialize()),200
+
+@app.route('/favorite/planet', methods=['POST'])
+def new_favorite():
+    data=request.get_json()
+    new_favorite= Planet(data['name'],data ['population'], data['description'] ,data['terrain'] ,data ['climate'])
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify(new_favorite.serialize()),200
+
+@app.route('/favorite/vehicle', methods=['POST'])
+def new_favorite():
+    data=request.get_json()
+    new_favorite= Vehicle(data['name'],data ['model'], data['description'] ,data['pilot'])
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify(new_favorite.serialize()),200
+
+
+@app.route('/favorite/<int:id>',methods=['DELETE'])
+def delete_favorite(id):
+    favorite=favorite.query.get(id).first()
+    db.sessionremove(id)
+    db.session.commit()
+
+    return jsonify(favorite.serialize()),201
 
 
 # this only runs if `$ python src/app.py` is executed
